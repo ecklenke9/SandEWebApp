@@ -10,6 +10,7 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
+		fmt.Println("pong!")
 		c.JSON(200, gin.H{"message": "pong"})
 	})
 	r.Run()
