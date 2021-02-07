@@ -5,7 +5,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/YOUR-USER-OR-OG-NAME/YOUR-REPO-NAME/handlers"
+	"github.com/ecklenke9/SandEWebApp/handlers"
 	"github.com/gin-gonic/gin"
 )
 
