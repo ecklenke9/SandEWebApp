@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/internal/router"
+	"github.com/ecklenke9/SandEWebApp/internal/router"
 )
 
 func main() {
