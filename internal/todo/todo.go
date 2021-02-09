@@ -2,9 +2,11 @@ package todo
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -58,11 +60,13 @@ func Complete(id string) error {
 }
 
 func newTodo(msg string) Todo {
-	return Todo{
-		ID:       xid.New().String(),
+	todo := Todo{
+		ID: xid.New().String(),
 		Message:  msg,
 		Complete: false,
 	}
+	log.Info().Msgf("New Todo created! [%+v]", todo)
+	return todo
 }
 
 func findTodoLocation(id string) (int, error) {
@@ -73,11 +77,14 @@ func findTodoLocation(id string) (int, error) {
 			return i, nil
 		}
 	}
-	return 0, errors.New("could not find todo based on id")
+	err := fmt.Errorf("could not find todo based on id: %v", id)
+	log.Err(err).Send()
+	return 0, err
 }
 
 func removeElementByLocation(i int) {
 	mtx.Lock()
+	log.Info().Msgf("Todo Deleted! [%+v]", list[i])
 	list = append(list[:i], list[i+1:]...)
 	mtx.Unlock()
 }
@@ -85,6 +92,7 @@ func removeElementByLocation(i int) {
 func setTodoCompleteByLocation(location int) {
 	mtx.Lock()
 	list[location].Complete = true
+	log.Info().Msgf("Todo Completed! [%+v]", list[location])
 	mtx.Unlock()
 }
 
