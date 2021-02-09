@@ -26,10 +26,20 @@ func AddTodoHandler(c *gin.Context) {
 func DeleteTodoHandler(c *gin.Context) {
 	todoID := c.Param("id")
 	if err := todo.Delete(todoID); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusNotFound, err)
 		return
 	}
 	c.JSON(http.StatusOK, "")
+}
+
+func GetTodoByIdHandler(c *gin.Context) {
+	todoID := c.Param("id")
+	todo, err := todo.GetByID(todoID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
+	c.JSON(http.StatusOK, todo)
 }
 
 func CompleteTodoHandler(c *gin.Context) {
@@ -38,11 +48,12 @@ func CompleteTodoHandler(c *gin.Context) {
 		c.JSON(statusCode, err)
 		return
 	}
-	if todo.Complete(todoItem.ID) != nil {
+	todo, err := todo.Complete(todoItem.ID)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	c.JSON(http.StatusOK, "")
+	c.JSON(http.StatusOK, todo)
 }
 
 func convertHTTPBodyToTodo(httpBody io.ReadCloser) (todo.Todo, int, error) {

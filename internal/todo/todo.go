@@ -32,6 +32,14 @@ func Get() []Todo {
 	return list
 }
 
+func GetByID(id string) (Todo, error) {
+	_, todo, err := findTodoByLocation(id)
+	if err != nil {
+		return Todo{}, err
+	}
+	return todo, err
+}
+
 func Add(message string) string {
 	t := newTodo(message)
 	mtx.Lock()
@@ -41,7 +49,7 @@ func Add(message string) string {
 }
 
 func Delete(id string) error {
-	location, err := findTodoLocation(id)
+	location, _, err := findTodoByLocation(id)
 	if err != nil {
 		return err
 	}
@@ -49,13 +57,14 @@ func Delete(id string) error {
 	return nil
 }
 
-func Complete(id string) error {
-	location, err := findTodoLocation(id)
+func Complete(id string) (Todo, error) {
+	location, todo, err := findTodoByLocation(id)
 	if err != nil {
-		return err
+		return Todo{}, err
 	}
 	setTodoCompleteByLocation(location)
-	return nil
+	todo.Complete = true
+	return todo, nil
 }
 
 func newTodo(msg string) Todo {
@@ -68,17 +77,17 @@ func newTodo(msg string) Todo {
 	return todo
 }
 
-func findTodoLocation(id string) (int, error) {
+func findTodoByLocation(id string) (int, Todo, error) {
 	mtx.RLock()
 	defer mtx.RUnlock()
 	for i, t := range list {
 		if isMatchingID(t.ID, id) {
-			return i, nil
+			return i, t, nil
 		}
 	}
 	err := fmt.Errorf("could not find todo based on id: %v", id)
 	log.Err(err).Send()
-	return 0, err
+	return 0, Todo{}, err
 }
 
 func removeElementByLocation(i int) {
