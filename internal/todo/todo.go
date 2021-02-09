@@ -1,10 +1,11 @@
 package todo
 
 import (
-	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -31,6 +32,14 @@ func Get() []Todo {
 	return list
 }
 
+func GetByID(id string) (Todo, error) {
+	_, todo, err := findTodoByLocation(id)
+	if err != nil {
+		return Todo{}, err
+	}
+	return todo, err
+}
+
 func Add(message string) string {
 	t := newTodo(message)
 	mtx.Lock()
@@ -40,7 +49,7 @@ func Add(message string) string {
 }
 
 func Delete(id string) error {
-	location, err := findTodoLocation(id)
+	location, _, err := findTodoByLocation(id)
 	if err != nil {
 		return err
 	}
@@ -48,36 +57,42 @@ func Delete(id string) error {
 	return nil
 }
 
-func Complete(id string) error {
-	location, err := findTodoLocation(id)
+func Complete(id string) (Todo, error) {
+	location, todo, err := findTodoByLocation(id)
 	if err != nil {
-		return err
+		return Todo{}, err
 	}
 	setTodoCompleteByLocation(location)
-	return nil
+	todo.Complete = true
+	return todo, nil
 }
 
 func newTodo(msg string) Todo {
-	return Todo{
+	todo := Todo{
 		ID:       xid.New().String(),
 		Message:  msg,
 		Complete: false,
 	}
+	log.Info().Msgf("New Todo created! [%+v]", todo)
+	return todo
 }
 
-func findTodoLocation(id string) (int, error) {
+func findTodoByLocation(id string) (int, Todo, error) {
 	mtx.RLock()
 	defer mtx.RUnlock()
 	for i, t := range list {
 		if isMatchingID(t.ID, id) {
-			return i, nil
+			return i, t, nil
 		}
 	}
-	return 0, errors.New("could not find todo based on id")
+	err := fmt.Errorf("could not find todo based on id: %v", id)
+	log.Err(err).Send()
+	return 0, Todo{}, err
 }
 
 func removeElementByLocation(i int) {
 	mtx.Lock()
+	log.Info().Msgf("Todo Deleted! [%+v]", list[i])
 	list = append(list[:i], list[i+1:]...)
 	mtx.Unlock()
 }
@@ -85,6 +100,7 @@ func removeElementByLocation(i int) {
 func setTodoCompleteByLocation(location int) {
 	mtx.Lock()
 	list[location].Complete = true
+	log.Info().Msgf("Todo Completed! [%+v]", list[location])
 	mtx.Unlock()
 }
 

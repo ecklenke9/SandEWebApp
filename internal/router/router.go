@@ -32,6 +32,7 @@ func BuildRoutes(ginny *gin.Engine) {
 	})
 
 	ginny.GET("/todo", handlers.GetTodoListHandler)
+	ginny.GET("/todo/:id", handlers.GetTodoByIdHandler)
 	ginny.POST("/todo", handlers.AddTodoHandler)
 	ginny.DELETE("/todo/:id", handlers.DeleteTodoHandler)
 	ginny.PUT("/todo", handlers.CompleteTodoHandler)
