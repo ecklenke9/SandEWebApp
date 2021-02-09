@@ -1,7 +1,6 @@
 package todo
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 
@@ -61,7 +60,7 @@ func Complete(id string) error {
 
 func newTodo(msg string) Todo {
 	todo := Todo{
-		ID: xid.New().String(),
+		ID:       xid.New().String(),
 		Message:  msg,
 		Complete: false,
 	}
