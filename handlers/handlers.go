@@ -12,6 +12,7 @@ import (
 
 func GetTodoListHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, todo.Get())
+	return
 }
 
 func AddTodoHandler(c *gin.Context) {
@@ -21,6 +22,7 @@ func AddTodoHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(statusCode, gin.H{"id": todo.Add(todoItem.Message)})
+	return
 }
 
 func DeleteTodoHandler(c *gin.Context) {
@@ -30,6 +32,7 @@ func DeleteTodoHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "")
+	return
 }
 
 func GetTodoByIdHandler(c *gin.Context) {
@@ -40,6 +43,7 @@ func GetTodoByIdHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, todo)
+	return
 }
 
 func CompleteTodoHandler(c *gin.Context) {
@@ -54,6 +58,7 @@ func CompleteTodoHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, todo)
+	return
 }
 
 func convertHTTPBodyToTodo(httpBody io.ReadCloser) (todo.Todo, int, error) {
